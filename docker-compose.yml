@@ -1,0 +1,49 @@
+version: '3'
+services:
+  wordpress:
+    image: wordpress
+
+    links:
+     - db
+
+    depends_on:
+     - db
+     
+    environment:
+     WORDPRESS_DB_HOST: db
+     WORDPRESS_DB_USER: me
+     WORDPRESS_DB_PASSWORD: supersecret
+     WORDPRESS_DB_NAME: superdb
+
+    networks:
+     - docknet
+
+  db:
+    image: mysql
+
+    environment:
+     MYSQL_DATABASE: superdb
+     MYSQL_USER: me
+     MYSQL_PASSWORD: supersecret
+     MYSQL_ROOT_PASSWORD: supersecret 
+    networks:
+     - docknet
+
+  loadbalancer-nginx:
+    image: nginx
+
+    depends_on:
+     - wordpress
+     - db
+
+    volumes:
+     - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+    ports: 
+     - "80:80"       
+
+    networks:
+     - docknet
+
+networks:
+    docknet:
